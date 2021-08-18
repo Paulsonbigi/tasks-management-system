@@ -11,42 +11,43 @@ import {
 import { CreateTaskDto } from './dto/create.task.dtos';
 import { GetFilterDtos } from './dto/get-tasks-dtos';
 import { UpdatesTaskStatusDto } from './dto/update-task-status.dto';
-import { Task, TaskStatus } from './tasks.model';
+import { TaskStatus } from './tasks.status.enum';
 import { TasksService } from './tasks.service';
+import { Task } from './task.entity';
 
 @Controller('tasks')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  @Get()
-  getTasks(@Query() filterData: GetFilterDtos): Task[] {
-    if (Object.keys(filterData).length) {
-      this.tasksService.getTasksWithFilters(filterData);
-    } else {
-      return this.tasksService.getAllTasks();
-    }
-  }
+  // @Get()
+  // getTasks(@Query() filterData: GetFilterDtos): Task[] {
+  //   if (Object.keys(filterData).length) {
+  //     this.tasksService.getTasksWithFilters(filterData);
+  //   } else {
+  //     return this.tasksService.getAllTasks();
+  //   }
+  // }
 
   @Get('/:id')
-  getAllTasksById(@Param('id') id: string): Task {
-    return this.tasksService.getAllTasksById(id);
+  async getAllTasksById(@Param('id') id: string): Promise<Task> {
+    return this.tasksService.getTaskById(id);
   }
 
   @Post()
-  createTask(@Body() CreateTaskDto: CreateTaskDto): Task {
+  async createTask(@Body() CreateTaskDto: CreateTaskDto): Promise<Task> {
     return this.tasksService.createTask(CreateTaskDto);
   }
 
   @Delete('/:id')
-  deleteTask(@Param('id') id: string): void {
+  deleteTask(@Param('id') id: string): Promise<void> {
     return this.tasksService.deleteTask(id);
   }
 
   @Patch('/:id/status')
   updateTask(
     @Param('id') id: string,
-    @Body('status') updateTaskStatusDto: UpdatesTaskStatusDto,
-  ): Task {
+    @Body() updateTaskStatusDto: UpdatesTaskStatusDto,
+  ): Promise<Task> {
     const { status } = updateTaskStatusDto;
     return this.tasksService.updateTask(id, status);
   }
